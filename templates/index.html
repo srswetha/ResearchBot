@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Bot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #333;
+            color: #eee;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .flip-card {
+            background-color: transparent;
+            width: 800px;
+            height: 800px;
+            perspective: 1000px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            background-color: #444;
+            color: #eee;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .flip-card-front {
+            padding: 20px;
+        }
+
+        .flip-card-back {
+            padding: 20px 20px;
+            transform: rotateY(180deg);
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin: 0px 0px 20px;
+        }
+
+        form {
+            background-color: #444;
+            padding: 20px 0px;
+            border-radius: 5px;
+            box-shadow: 0 0px 0px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 100%;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: #eee;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #666;
+            border-radius: 4px;
+            box-sizing: border-box;
+            resize: none;
+            background-color: #555;
+            color: #eee;
+        }
+
+        button[type="submit"],
+        button[type="button"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 20px auto;
+            display: block; 
+            width: fit-content;
+            font-size: 15px;
+        }
+
+        button[type="submit"]:hover,
+        button[type="button"]:hover {
+            background-color: #0056b3;
+        }
+
+        .bot {
+            width: 100px;
+            height: 100px;
+            background-color: #007bff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 20px;
+            animation: bounce 2s infinite;
+            margin-top: 20px;
+            box-shadow: 0px 5px 5px rgb(48, 48, 48);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .answer {
+            background-color: #444;
+            text-align: left;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.1);
+            color: #eee;
+            perspective: 500px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        a {
+            color: #ff6600;
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: #cc5500;
+        }
+
+        .toggle-btn {
+            display: block;
+            margin-left: 85%;
+            margin-top: -10%;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .toggle-btn:hover {
+            opacity: 0.7;
+        }
+
+        .front-btn {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .front-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .bot {
+            width: 100px;
+            height: 100px;
+            background-color: #007bff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 40px;
+            animation: bounce 2s infinite;
+            margin-top: 20px;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-30px);
+            }
+            60% {
+                transform: translateY(-15px);
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="flip-card" id="flip-card">
+        <div class="flip-card-inner" id="flip-card-inner">
+            <div class="flip-card-front" id="flip-card-front">
+            </div>
+            <div class="flip-card-back" id="flip-card-back">
+                <h1>ResearchBot</h1>
+                {% if not question %}
+                <form method="post" onsubmit="showWaitingMessage()">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" name="title">
+                    <label for="question">Question:</label>
+                    <textarea id="question" name="question" rows="10"></textarea>
+                    <button type="submit">Submit</button>
+                </form>
+                {% endif %}
+                {% if question %}
+                <div class="answer">
+                    <h2>Your question:</h2>
+                    <p><strong>Title:</strong> {{ title }}</p>
+                    <p><strong>Details:</strong> {{ question }}</p>
+                    <h2>Answer:</h2>
+                    <p>{{ answer | safe }}</p>
+                </div>
+                <form action="/" method="get">
+                    <button type="submit">Submit New Question</button>
+                </form>
+                {% endif %}
+                <!-- <button class="toggle-btn" onclick="toggleFlip()" id="toggle-btn">Unflip</button> -->
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        let flipEnabled = false;
+
+        function toggleFlip() {
+            flipEnabled = !flipEnabled;
+            var cardInner = document.getElementById('flip-card-inner');
+            var button = document.getElementById('toggle-btn');
+
+            if (flipEnabled) {
+                cardInner.style.transform = 'rotateY(180deg)';
+                button.innerHTML = 'Unflip';
+                button.style.backgroundColor = '#007bff';
+            } else {
+                cardInner.style.transform = 'rotateY(0deg)';
+                button.innerHTML = 'Flip';
+                button.style.backgroundColor = '#ff6600';
+            }
+        }
+
+        function flipCard() {
+            var cardInner = document.getElementById('flip-card-inner');
+            cardInner.style.transform = 'rotateY(180deg)';
+            flipEnabled = true;
+            var button = document.getElementById('toggle-btn');
+            button.innerHTML = 'Unflip';
+            button.style.backgroundColor = '#007bff';
+        }
+
+        function showWaitingMessage() {
+            var cardInner = document.getElementById('flip-card-inner');
+            cardInner.style.transform = 'rotateY(0deg)';
+            document.getElementById('flip-card-front').innerHTML = '<h1>Processing your question...</h1><p>Please wait while ResearchBot generates an answer!</p><div class="bot">🤖</div>';
+            flipEnabled = false;
+        }
+
+        window.onload = function() {
+            if ("{{ question }}") {
+                var cardInner = document.getElementById('flip-card-inner');
+                cardInner.style.transform = 'rotateY(180deg)';
+                flipEnabled = true;
+                var button = document.getElementById('toggle-btn');
+                button.innerHTML = 'Unflip';
+                button.style.backgroundColor = '#007bff';
+            }
+        };
+    </script>
+</body>
+</html>
